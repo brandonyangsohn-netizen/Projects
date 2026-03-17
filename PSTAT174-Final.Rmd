@@ -1,0 +1,309 @@
+---
+title: "Analysis of Microsoft Stock Data from 2015 - 2021"
+author: "Brandon Yang"
+date: "2025-03-16"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+\section*{\centering Abstract}
+
+
+This study conducts a time series analysis of Microsoft stock data spanning from 2015 to 2021, with the objective of identifying patterns in stock price behavior and evaluating the effectiveness of time series models in forecasting financial trends. The data set, originally compiled by Vijay Venkitesh and sourced via Google Finance, consists of daily closing prices for the specified period. Employing fundamental techniques of time series analysis, such as autocorrelation function (ACF), partial autocorrelation function (PACF), and ARIMA modeling, this study aims to assess the relationship between past stock prices and future price movements. The ARIMA (Auto-Regressive Integrated Moving Average) model is used in conjunction with residual diagnostics to capture the underlying structure of stock price movements. This research emphasizes the importance of model selection in financial forecasting, presenting a foundational approach to analyzing and forecasting stock market data. The findings underscore the applicability of ARIMA models in capturing stock price dynamics and provide a perspective on how historical trends can guide investment strategies and risk management.
+
+\newpage
+
+\section*{\centering Introduction}
+
+
+Stock market analysis has long been a critical component in understanding market behavior, identifying trends, and informing investment decisions. As financial markets continue to evolve with advancements in technology and globalization, the need for robust models to forecast stock prices has never been more essential. This study specifically focuses on analyzing Microsoft stock data from 2015 to 2021, leveraging time series modeling techniques to forecast future price movements and identify trends over time.
+
+Microsoft, one of the most influential technology companies globally, plays a significant role in the stock market. Its stock is widely held and actively traded, making it an ideal candidate for financial analysis. By investigating the daily closing prices over a six-year period, this study aims to understand the temporal dynamics of stock prices and their potential implications for future price movements. The dataset used in this analysis, originally compiled by Vijay Venkitesh and sourced from Google Finance through Google Sheets, provides a reliable and accessible record of Microsoft’s stock performance, capturing fluctuations in the stock's value on a daily basis.
+
+Through the application of time series analysis techniques such as autocorrelation (ACF), partial autocorrelation (PACF), and ARIMA models, this study investigates the patterns that may exist within the data. These tools are fundamental in understanding the nature of stock price movements and determining the necessary coefficients for modeling. The primary aim of the study is to assess the viability of the ARIMA model, with a particular focus on its ability to capture underlying market trends and volatility while accounting for seasonality and other inherent characteristics of the stock data.
+
+By delving into the dynamics of Microsoft’s stock price and forecasting future trends, this study not only seeks to demonstrate the power of time series analysis but also emphasizes the importance of proper model selection in financial forecasting. Given the volatility of financial markets, no model can guarantee absolute predictions. However, by analyzing historical data, investors and analysts can gain valuable insights into potential price movements, which could enhance investment strategies and inform risk management practices.
+
+
+
+\newpage
+
+\section*{\centering Description of Experiment}
+
+
+This study leverages a data set of Microsoft stock prices, which spans from 2015 to 2021, to apply time series analysis techniques for understanding stock behavior and making future predictions. The data includes daily closing prices, recorded five days a week, sourced from Google Finance via Google Sheets. This data set serves as a foundational resource for exploring Microsoft’s price movements and understanding broader financial trends. As one of the leading companies in the technology sector, Microsoft is a key player in global markets, and its stock price movements can offer insights into broader economic conditions and investor sentiment.
+
+The focus of this research is on applying time series analysis techniques, particularly ARIMA (Auto-Regressive Integrated Moving Average) modeling, to capture the stock's historical behavior. Time series models are particularly useful for forecasting financial data, as they account for temporal dependencies in the data. In the initial phase of the study, we explore the autocorrelation function (ACF) and partial autocorrelation function (PACF) to identify appropriate coefficients for the ARIMA model. These diagnostic tools help determine whether a time series is stationary and guide the selection of model parameters, including the order of differencing and the number of auto-regressive and moving average terms.
+
+Once the model parameters are determined, the study employs ARIMA modeling to forecast future stock prices. ARIMA is a versatile model for time series forecasting, which incorporates auto-regressive terms, differencing, and moving averages to model the underlying structure of a time series. The effectiveness of the model is then assessed through residual diagnostics, which help ensure that the residuals (the differences between predicted and actual values) resemble white noise. This is crucial for validating the model's ability to capture the true underlying dynamics of the stock data.
+
+The ultimate goal of this study is to highlight the role of time series analysis in financial forecasting. By utilizing historical stock data, we aim to demonstrate how past stock prices can inform future price movements, offering insights that may assist investors in making informed decisions. While the study does not claim to predict the future with absolute certainty, it offers a practical introduction to financial modeling and underscores the importance of selecting the appropriate time series model to capture key trends and patterns in stock data.
+
+This research contributes to the growing field of financial analysis by providing an entry-level approach to stock price forecasting using ARIMA models. It serves as a foundation for further exploration in financial modeling and opens the door for more advanced analyses of stock market data. Through this study, I hope to deepen my understanding of time series analysis and its applications, particularly in forecasting financial data, while aligning with my long-term goals of pursuing a career in the financial sector after graduation.
+
+\newpage
+
+\section*{\centering Methods}
+
+
+We use the SARIMA (Seasonal Auto-Regressive Integrated Moving Average) model as an extension of the ARIMA designed to handle seasonality in a time-series experiment. The model is shown as SARIMA(p,d,q) x (P,D,Q), where 
+
+- (p, d, q) are the parameters of the non-seasonal component of the model:
+  - p: Order of the autoregressive (AR) term, indicating how many previous observations are used to predict the current value.
+  - d: Degree of differencing to make the time series stationary (removing trends).
+  - q: Order of the moving average (MA) term, showing the number of lagged forecast errors used in the model.
+
+- (P, D, Q) are the parameters of the seasonal component of the model:
+  - P: Order of the seasonal autoregressive (SAR) term, analogous to the AR part but for the seasonal component.
+  - D: Degree of seasonal differencing to make the seasonal part stationary.
+  - Q: Order of the seasonal moving average (SMA) term.
+  
+To perform SARIMA we must have: 
+
+- Stationarity: Ensure the time series is stationary, which may involve differencing (both non-seasonal and seasonal).
+
+- Model Identification: Use autocorrelation (ACF) and partial autocorrelation (PACF) plots to identify appropriate values for p, q, P, and Q.
+
+- Parameter Estimation: Estimate the model parameters (p, d, q, P, D, Q) using maximum likelihood estimation or other methods.
+
+- Diagnostic Checking: Evaluate residuals for any patterns that might suggest model improvements.
+
+- Forecasting: Once the model is validated, use it to forecast future values while accounting for both trend and seasonal patterns.
+
+\newpage
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+library(forecast)
+library(tseries)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(readr)
+
+Microsoft_Stock <- read_csv("Microsoft_Stock.csv")
+Microsoft_Stock$Date <- as.Date(Microsoft_Stock$Date)
+```
+
+\section*{\centering Microsoft Stock Data Plot}
+
+
+```{r fig.show = "hold", fig.width = 10, fig.height = 3, fig.align = 'center'}
+Time_Series_Data <- ts(Microsoft_Stock$Close, frequency = 252, start = c(2015, 1))
+plot(Time_Series_Data)
+```
+
+The plot illustrates Microsoft's stock price steadily increasing over time, confirming that the data is non-stationary. A significant surge is observed in 2020, coinciding with the COVID-19 pandemic, during which tech stocks experienced a rapid rise. Additionally, there is a noticeable increase in variance over time, further supporting the non-stationary nature of the data.
+
+\section*{\centering Stationarity Check}
+
+
+```{r fig.show = "hold", fig.width = 10, fig.height = 3, fig.align = 'center'}
+adf_test <- adf.test(Time_Series_Data)
+if(adf_test$p.value > 0.05) {
+  Time_Series_Diff <- diff(Time_Series_Data, differences = 1)
+ } else {
+  Time_Series_Diff <- Time_Series_Data
+ }
+plot(Time_Series_Diff)
+```
+
+Although the previous plot visually suggests non-stationarity, I conducted an Augmented Dickey-Fuller (ADF) test to formally assess stationarity. Since the p-value exceeds 0.05, I applied first-order differencing to transform the data into a stationary series.
+
+\newpage
+
+\section*{\centering Log Transformation Stationarity}
+
+
+To further ensure stationarity, I applied a log transformation and repeated the stationarity check. This transformation helped stabilize variance, and the ADF test now returned a p-value below 0.05, allowing me to assume that the data is now stationary and suitable for modeling.
+
+```{r, warning = FALSE, fig.show = "hold", fig.width = 10, fig.height = 3, fig.align = 'center'}
+Time_Series_Log <- log(Time_Series_Data)
+
+
+Time_Series_Diff <- diff(Time_Series_Log, differences = 1)
+
+
+adf_test <- adf.test(Time_Series_Diff)
+
+if (adf_test$p.value > 0.05) {
+  cat("The data is non-stationary.\n")
+} else {
+  cat("The data is stationary.\n")
+}
+
+plot(Time_Series_Diff, main = "Differenced Log-Transformed Time Series")
+```
+
+
+
+\section*{\centering Model Identification}
+
+
+```{r, fig.show = "hold", out.width = "50%"}
+par(mfrow = c(1, 2))
+
+pacf(Time_Series_Diff)
+mtext("PACF of Time Series Data", side = 3, line = 1)  
+pacf(Time_Series_Diff, lag.max = 120)
+mtext("Lag Max 12 PACF of Time Series Data", side = 3, line = 1)  
+acf(Time_Series_Diff)
+mtext("ACF of Time Series Data", side = 3, line = 1)  
+acf(Time_Series_Diff, lag.max = 120)
+mtext("Lag Max 12 ACF of Time Series Data", side = 3, line = 1)  
+```
+
+To determine the optimal ARIMA model parameters, I used the auto.arima function, which automates parameter selection. However, I also manually examined Autocorrelation (ACF) and Partial Autocorrelation (PACF) plots at different lag values. The PACF plot tapers off after lag 3, suggesting an ARIMA(3,1,1) model as a reasonable choice.
+
+\section*{\centering Parameter Estimation}
+
+
+```{r}
+Sarima <- auto.arima(Time_Series_Log, lambda = "auto" ,seasonal = TRUE, stepwise = TRUE, approximation = TRUE)
+```
+
+I selected a Seasonal ARIMA (SARIMA) model to account for seasonality in the data. Additionally, I encountered challenges running the auto.arima function without enabling approximation and stepwise conditions, which were necessary to improve computational efficiency.
+
+\newpage
+
+\section*{\centering Residuals Check}
+
+```{r, fig.height = 3}
+summary(Sarima)
+```
+
+```{r, fig.show = "hold", fig.width = 10, fig.height = 3, fig.align = 'center'}
+
+checkresiduals(Sarima)
+```
+
+The residual time series plot exhibits random oscillations around zero, indicating that the log transformation was effective in making the series stationary. However, there is still some increased volatility, particularly with initial spikes. The ACF of the residuals remains within the blue confidence bands, signifying no significant autocorrelation. Lastly, the histogram of residuals appears approximately normal, further validating the model's appropriateness.
+
+Our MAPE was 24.93% implying that we have a moderate error in the forecasted values, but this level of error is considered acceptable in financial markets, whereas our MASE is much lower at 0.0389 which implies an effective implementation of ARIMA, and our ACF1 is negative, implying we removed autocorrelation sufficiently. Our Ljung-Box Test gave a p-value of 0.8032 indicating we fail to reject the null hypothesis that the residuals are independent, so we achieve no significant autocorrelation. We can infer that our ARIMA(3,1,1) is a good fit. 
+
+\newpage
+
+\section*{\centering Forecasting}
+
+
+```{r fig.show = "hold", fig.width = 10, fig.height = 4, fig.align = 'center'}
+Forecast_Sarima <- forecast(Sarima, h = 12)
+plot(Forecast_Sarima)
+```
+
+Given Microsoft's historical growth, an upward trend in the forecast is expected. Since this analysis is based on past data, we already know that Microsoft’s stock price continued to rise post-2021. While the model does not account for extreme market downturns, it aligns with Microsoft's long-term growth trajectory.
+
+\section*{\centering Lagged Regression}
+
+
+```{r, fig.show = "hold", out.width = "65%",fig.align ='center'}
+Microsoft_Stock <- Microsoft_Stock %>%
+  mutate(Log_Return = log(Close / lag(Close))) %>%
+  na.omit()
+
+Microsoft_Stock <- Microsoft_Stock %>%
+  mutate(Lag_1 = lag(Log_Return, 1),
+         Lag_2 = lag(Log_Return, 2)) %>%
+  na.omit()
+
+model_log <- lm(Log_Return ~ Lag_1 + Lag_2, data = Microsoft_Stock)
+
+
+summary(model_log)
+```
+
+As an alternative forecasting approach, I implemented a Lagged Regression model. This revealed a weak mean reversion effect, where high yields tend to revert toward the previous close, leading to lower next-day returns. Additionally, a delayed mean reversion effect was observed, indicating potential patterns over a longer horizon. However, despite these insights, the predictive power of this method was weaker compared to the SARIMA model.
+
+\newpage
+
+\section*{\centering Conclusion}
+
+
+This study applied time series analysis techniques to Microsoft stock data from 2015 to 2021 to evaluate stock price trends and forecasting effectiveness. By leveraging ARIMA and SARIMA models, we identified key patterns in stock price movements and assessed the predictive power of these models in a financial setting.
+
+Our analysis revealed that Microsoft's stock prices exhibited a non-stationary trend, necessitating transformations such as differencing and logarithmic adjustments to achieve stationarity. The Augmented Dickey-Fuller (ADF) test confirmed stationarity after appropriate transformations, allowing for effective model fitting. Through autocorrelation function (ACF) and partial autocorrelation function (PACF) plots, we identified an ARIMA(3,1,1) model as a strong candidate for capturing the stock’s underlying structure. Residual diagnostics further validated the model’s performance, with the Ljung-Box test indicating no significant autocorrelation, suggesting that the fitted model effectively captured the time series dynamics.
+
+Our SARIMA model provided reasonable forecasts, demonstrating that historical trends can be used to predict future stock prices. However, the model’s limitations became evident in its inability to account for external economic shocks, such as the COVID-19 market surge, which significantly influenced Microsoft’s stock value. While the model aligns with the long-term growth trajectory of the stock, it does not capture unexpected market fluctuations, highlighting the inherent challenges in financial forecasting.
+
+Additionally, a lagged regression model was employed as an alternative approach, revealing a weak mean reversion effect in daily log returns. Despite providing insights into short-term price dependencies, this method demonstrated limited predictive power compared to SARIMA, emphasizing the advantages of time series modeling for stock price forecasting.
+
+Overall, this study underscores the importance of proper model selection and validation in financial forecasting. While ARIMA-based models effectively capture historical trends, their accuracy depends on market conditions and assumptions about data behavior. Future research could explore hybrid models integrating machine learning techniques to enhance predictive accuracy and adapt to market volatility. The findings of this study contribute to the broader field of financial data analysis, providing a foundation for informed investment strategies and risk management.
+
+\pagebreak
+
+\section*{\centering References}
+https://www.kaggle.com/datasets/vijayvvenkitesh/microsoft-stock-time-series-analysis
+
+
+\section*{\centering Code}
+```{r, eval = FALSE, echo = TRUE, fig.height = 3}
+# Libraries 
+library(forecast)
+library(tseries)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(readr)
+
+Microsoft_Stock <- read_csv("Microsoft_Stock.csv")
+Microsoft_Stock$Date <- as.Date(Microsoft_Stock$Date)
+
+# Microsoft Data Plot
+Time_Series_Data <- ts(Microsoft_Stock$Close, frequency = 252, start = c(2015, 1))
+plot(Time_Series_Data)
+
+# Stationary Check
+adf_test <- adf.test(Time_Series_Data)
+if(adf_test$p.value > 0.05) {
+  Time_Series_Diff <- diff(Time_Series_Data, differences = 1)
+ } else {
+  Time_Series_Diff <- Time_Series_Data
+ }
+plot(Time_Series_Diff)
+
+# Log Transformation Stationarity
+Time_Series_Log <- log(Time_Series_Data)
+Time_Series_Diff <- diff(Time_Series_Log, differences = 1)
+
+adf_test <- adf.test(Time_Series_Diff)
+if (adf_test$p.value > 0.05) {
+  cat("The data is non-stationary.\n")
+} else {
+  cat("The data is stationary.\n")
+}
+plot(Time_Series_Diff, main = "Differenced Log-Transformed Time Series")
+
+# Model Identification
+par(mfrow = c(1, 2))
+pacf(Time_Series_Diff)
+mtext("PACF of Time Series Data", side = 3, line = 1)  
+pacf(Time_Series_Diff, lag.max = 120)
+mtext("Lag Max 12 PACF of Time Series Data", side = 3, line = 1)  
+acf(Time_Series_Diff)
+mtext("ACF of Time Series Data", side = 3, line = 1) acf(Time_Series_Diff, lag.max = 120)
+mtext("Lag Max 12 ACF of Time Series Data", side = 3, line = 1)  
+
+## Parameter Estimation
+Sarima <- auto.arima(Time_Series_Log, lambda = "auto" ,seasonal = TRUE, stepwise = TRUE, approximation = TRUE)
+
+## Residuals Check
+summary(Sarima)
+checkresiduals(Sarima)
+
+## Forecasting
+Forecast_Sarima <- forecast(Sarima, h = 12)
+plot(Forecast_Sarima)
+
+## Lagged Regression
+Microsoft_Stock <- Microsoft_Stock %>%
+  mutate(Log_Return = log(Close / lag(Close))) %>%
+  na.omit()
+Microsoft_Stock <- Microsoft_Stock %>%
+  mutate(Lag_1 = lag(Log_Return, 1),
+         Lag_2 = lag(Log_Return, 2)) %>%
+  na.omit()
+model_log <- lm(Log_Return ~ Lag_1 + Lag_2, data = Microsoft_Stock)
+summary(model_log)
+```

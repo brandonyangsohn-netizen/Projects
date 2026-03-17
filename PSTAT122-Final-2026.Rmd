@@ -1,0 +1,372 @@
+---
+title: "Final"
+author: "Brandon Yang"
+date: "2024-12-12"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction 
+
+The pursuit of innovation in aerospace design has continuously driven efforts to achieve greater heights and improve flight performance in challenging atmospheric conditions. From ascending to higher altitudes to managing safe descents, the ability to optimize stability, control, and reusability has become a central focus for advancing modern aviation. One critical factor influencing these advancements is the strategic management of weight distribution, which plays a pivotal role in extending flight duration and maintaining aerodynamic balance.
+
+Stratolaunch, a private aerospace company, unveiled the Talon-A in May 2018 as part of its innovative efforts in aerospace design and development. During the design phase, the company discovered a remarkable similarity between a scaled-down version of the Talon-A and a common paper airplane model known as the "Basic Dart." This unexpected parallel revealed that the aerodynamic characteristics and physical responses of the scaled Talon-A closely mirrored those of the Basic Dart, providing an ideal, cost-effective platform for experimental testing. (Galkowski J, 2024).
+
+One of the primary objectives in optimizing the Talon-A's performance was to refine its weight distribution to maximize flight duration and stability. To achieve this, Stratolaunch conducted tests on three distinct weight-centralization methods, alongside a control, using seven paper airplanes specifically engineered to replicate the composition and aerodynamic properties of the Talon-A. The only variation between the paper models and the actual Talon-A was in their centerfold design, which was strategically modified to integrate metallic weights. If this study validates the design, the improved centerfold configuration will be incorporated into the next iteration, the Talon-B, to accommodate a system for dynamically shifting weights during flight.
+
+Previous research into dart-style airplane aerodynamics has underscored the pivotal role of the centerfold in influencing flight dynamics, particularly in generating high angles of attack. (Schlüter JU, 2014). These findings highlight the critical importance of the centerfold in achieving stability and controlled maneuvers. In addition to optimizing flight duration, the Talon-B must also meet stringent requirements for runway landings, necessitating effective weight centralization to manage deceleration and speed reduction during descent.
+
+To address these challenges, Stratolaunch has developed an innovative weight-shifting device capable of redistributing metallic weights mid-flight at predefined checkpoints along the plane's structure. This system aims to enhance the Talon-B's adaptability in varied flight conditions, providing precise control over both speed and stability. By combining insights from aerodynamic testing and dynamic weight management, this study seeks to advance the design of the Talon-B, paving the way for its successful deployment in future aerospace missions.
+
+Our study focuses on evaluating the impact of weight centralization on the flight distance of paper airplanes designed to mimic the aerodynamic properties of the Talon-A. To achieve this, we will place metallic weights at the front, center, and rear of the planes, ensuring the centerfold remains intact to accurately simulate the Talon-A's design. By conducting trials across an adequate sample size, we aim to gather reliable data on how weight distribution affects flight performance. The results will inform the development of optimized configurations for the Talon-A and its successors, potentially enhancing their overall flight stability and efficiency.
+
+# Methods 
+
+## Project Overview
+
+We conducted an experiment to analyze the effects of weight placement on the flight distance of paper airplanes. A total of 28 observations were recorded, divided into four treatment groups and seven blocks. The project was conducted in our drive way, using a single three-hundred inch measuring tape to measure throws. The measuring tape was placed two-hundred inches away for the forward and middle throws, and at the starting point for the back throws. 
+
+### Treatment Groups
+
+The treatment groups included:
+
+1. Control: No added weights, replicating the "Basic Dart" plane. This served as a baseline to simulate how a Talon-A would fly without additional weights in a controlled environment.
+
+2. Front: Weights added to the front of the centerfold using paper clips.
+
+3. Middle: Weights added to the middle of the centerfold.
+
+4. Back: Weights added to the back of the centerfold.
+
+The weights were positioned flat-side down so that the centerfold rested on the interior of the clip, ensuring consistent placement across planes.
+
+### Experimental Design
+
+* Blocks and Planes: Seven blocks were defined, with seven paper airplanes constructed for each block. Each paper airplane was subjected to experimentation under each treatment condition, resulting in four throws per plane.
+
+* Randomization: Each plane was assigned a unique identifier based on its block and treatment, such as "1B" for block 1, Back treatment, or "7C" for block 7, Control treatment. The sample function in R was used to generate a randomized sample order for testing.
+
+* Power: The power required for the sample size approximations and caluculations was set to 80% at an $\alpha$ = 0.05. 
+
+### Statistical Analyses
+
+Various statistical analyses were performed to determine the impact of the treatments on the flight distance.
+
+A Regression Model was utilized to find the effects of paperclips centralization and to calculate estimates, and an Anova Model was used to calculate the effect of any treatment against the base case. Afterwards a Permutation Model was used to test and compare p-values with the previous model, in order to confirm my studies with a non-parametric model. 
+
+Assumptions for ANOVA
+
+To use ANOVA effectively, the following assumptions were considered:
+
+1. Normality: Residuals were tested for normality using the Shapiro-Wilk test and by analyzing residual vs. fitted plots.
+
+2. Homogeneity of Variance: A variance plot was created to check for homogeneity.
+
+3. Independence: This assumption was violated as each plane was thrown four times under different treatments, making the conditions dependent on the plane's prior throws.
+
+4. Random Sampling: The planes were randomly sampled using the R sample function to determine the order of testing.
+
+The experiment’s design ensured robust randomization and provided valuable insights into the effects of weight placement on flight performance. While independence was violated due to repeated measures, the statistical analyses were adjusted to account for this dependency. Future iterations of this experiment could benefit from using different planes for each throw to fully satisfy the independence assumption.
+
+## Technical Issues
+
+* Moisture: During the day I was testing, there was apparent moisture on the ground. Some of the planes felt heavier and a little bit damp, but flew nonetheless, after this realization airplanes were kept inside the house until needed. 
+
+* Measuring Tape: As mentioned, the measuring tape only accounted for three-hundred inches, whereas some of the planes managed upwards of four-hundred inches, so there were some cases where the airplanes would go further than the measuring tape could handle, and some error in accounting may have occurred. 
+
+* Left Skewed: Some of the airplanes for some odd reason, whether it was wind or the design of the airplane seemed to go left right into my fence. So the airplanes that were more prone to going left would often crash and retain more damage. 
+
+### Image of Dart Planes 
+![](PaperAirPlanes.pdf)
+
+### Image of My Drive Way with Measuring Tape
+![](MyDriveWay.pdf)
+
+# Results 
+
+## Library
+```{r, output = 'hide', message = FALSE}
+library(dplyr)
+library(ggplot2)
+library(knitr)
+```
+
+## Data 
+```{r}
+# Lab 2 Data
+With <- c(257,344, 320, 329, 384)
+Without <- c(297,285,208,261,192)
+Order <- c("Zach", "Anshi", "Brandon" , "Andrew" , "Adarsh")
+Difference <- With - Without 
+
+# Airplane Data
+plane <- c(rep(1:7, 4))
+inches <- c(298, 267, 435, 300, 442, 375, 289, 481, 471, 507, 373, 386, 436, 508, 300, 306, 270, 379, 240, 420, 464, 230, 215, 175, 133, 217, 272, 342)
+treatment <- c(rep("control", 7),c(rep("front",7)),c(rep("middle",7)), c(rep("back", 7)))
+
+data <- data.frame(plane, inches, treatment)
+data$treatment <- factor(data$treatment, levels = c("control", "front", "middle", "back"))
+
+```
+
+## Summary Statistics
+```{r, warning = FALSE}
+
+summary_stats <- data %>%
+  group_by(treatment) %>%
+  summarise(
+    mean_inches = mean(inches),
+    variance_inches = var(inches),
+    n_observations = n())
+
+colnames(summary_stats) <- c("Treatment", "Mean[In]", "Variance[In]", "Observations[N]")
+
+knitr::kable(summary_stats, caption = "Summary Statistics of Flight Distances by Treatment")
+```
+
+The interesting part of this summary lies in the variance. It seemed like the front and back centralize paper clips made the throws of the paper airplane more decisive. The front were more likely to fly further and reach a optimal point, whereas the back would do a two-eighty and crash into the ground. 
+
+## Sample Size Calculation 
+
+```{r, fig.width = 8, fig.height = 5, fig.align = "center"}
+# Best and Worst Variance and N
+Means <- c(mean(With), mean(Without))
+Vars <- c(var(With), var(Without))
+
+Best <- power.anova.test(groups = length(Means),
+                 between.var = var(Means),
+                 within.var =Vars[1],
+                 power = 0.8, sig.level = 0.05, n = NULL)
+
+N_Best <- Best$n
+Variance_Best <- Best$within.var
+
+Worst <- power.anova.test(groups = length(Means),
+                 between.var = var(Means),
+                 within.var = Vars[2],
+                 power = 0.8, sig.level = 0.05, n = NULL)
+
+N_Worst <- Worst$n
+Variance_Worst <- Worst$within.var
+
+# Kable Output
+Output_Best <- cbind.data.frame(Method = "Best", N = N_Best, Variance = Variance_Best)
+Output_Worst <- cbind.data.frame(Method = "Worst", N = N_Worst, Variance = Variance_Worst)
+Combined_Output <- rbind(Output_Best, Output_Worst)
+
+knitr::kable(Combined_Output, caption = "Calculated Sample Size based on Best and Worst Case", col.names = c("Method", "Calculated Sample Size", "Within Variance"))
+
+# Sample Size Graph
+between.var <- seq(2650, 3350, by = 10)
+
+n_var1 <- NA
+n_var2 <- NA
+n_var3 <- NA
+
+for(i in 1:length(between.var)){
+  n_var1[i] <- power.anova.test(groups = 2, 
+                                between.var = between.var[i],
+                                within.var = 2123,
+                                power = 0.8, sig.level = 0.05, n = NULL)$n
+  
+  n_var2[i] <- power.anova.test(groups = 2, 
+                                between.var = between.var[i],
+                                within.var = 2140,
+                                power = 0.8, sig.level = 0.05, n = NULL)$n
+  
+  n_var3[i] <- power.anova.test(groups = 2, 
+                                between.var = between.var[i],
+                                within.var = 2168,
+                                power = 0.8, sig.level = 0.05, n = NULL)$n
+}
+
+sample_sizes <- data.frame(
+  n = c(n_var1, n_var2, n_var3),
+  between.var = rep(between.var, 3),
+  within.var = c(rep("2168", length(n_var1)),
+                 rep("2140", length(n_var2)),
+                 rep("2123", length(n_var3)))
+)
+
+sample_sizes$within.var <- factor(sample_sizes$within.var, levels = c("2168", "2140", "2123"))
+
+
+
+# Plot Output
+ggplot(data = sample_sizes, mapping = aes(x = between.var, y = n, group = within.var, color = within.var)) + 
+  geom_point() +        
+  geom_line() +         
+  labs(x = "Between-group Variance", y = "Sample Size", title = "Sample Size based on Between-Group Variance") + 
+  theme_minimal() 
+```
+
+## Anova 
+```{r}
+Anova <- aov(inches ~ treatment + plane, data = data)
+Anova_Summary <- summary(Anova)
+Anova_Output <- as.data.frame(Anova_Summary[[1]])
+
+knitr::kable(Anova_Output, caption = "ANOVA Results for Treatment and Plane Effects")
+
+```
+$$
+\begin{aligned}
+H_0 : \mu_{control} = \mu_{front} = \mu_{middle} = \mu_{back} \\
+H_A : \text{At least one} \;\mu \; \text{is different from the others } \\
+\end{aligned}
+$$
+
+
+Based on our ANOVA table, we can see that our treatment is statistically significant, whereas our plane and Plane:treatment is not. What this means is that we have found sufficient evidence to conclude that our plane flies differently compared to the control, given that we subject it to treatment. We also found that using different planes to test our measurements does not have a strong enough affect to sway the model. 
+
+## Regression
+```{r}
+Linear_Model <- lm(inches ~ treatment, data = data)
+Linear_Summary <- summary(Linear_Model)
+Linear_Coefficients <- as.data.frame(Linear_Summary$coefficients)
+
+rownames(Linear_Coefficients) <- c("(Intercept)","Front", "Middle", "Back") 
+
+knitr::kable(Linear_Coefficients, caption = "Regression Coefficients for Treatment Effects")
+```
+
+According to the Regression model, we can see that there is strong evidence to support that adding a paperclip to the front and back of the paper airplane had a statistically significant affect on the distance traveled, whereas the paperclip placed in the middle did not have a strong enough affect to sway the model, which in the end seems to make sense. What we found is that paper airplanes were hurt more by the addition of a paperclip on the back of the plane, than benefited by the addition of a paperclip on the front, this could be due to the large number of paper airplanes that seemed to fly backwards due to the paperclip. 
+
+## Post-HOC
+```{r}
+mean1 <- mean(data$inches[data$treatment == "control"])
+mean2 <- mean(data$inches[data$treatment == "front"])
+mean3 <- mean(data$inches[data$treatment == "middle"])
+mean4 <- mean(data$inches[data$treatment == "back"])
+
+groupmeans <- c(mean1, mean2, mean3, mean4)
+
+power_result <- power.anova.test(groups = length(groupmeans),
+between.var=var(groupmeans),
+within.var=Vars[1],
+power=0.8, sig.level=0.05, n=NULL)
+
+results_table <- data.frame(
+  Group = c("Control", "Front", "Middle", "Back"),
+  Mean = groupmeans,
+  "Sample Size (n)" = rep(round(power_result$n), 4) 
+)
+
+knitr::kable(results_table, col.names = c("Treatment Group", "Mean[In]", "Required Sample Size[N]"), caption = "Group Means and Required Sample Size for Power Analysis")
+
+```
+
+Our Post-Hoc run for a power of 80%, and an $\alpha$ = 0.05, shows that given our sample data, we would require a sample size of at least two observations per treatment, whereas our initial calculation had us perform about seven observations, meaning our study has enough observations to perform at, or above a power of 80%. 
+
+## Model-Checking 
+
+### Normality Assumption
+
+#### Shapiro-Wilk Test
+```{r}
+residuals <- residuals(Anova)
+
+shapiro_result <- shapiro.test(residuals)
+
+shapiro_df <- data.frame(
+  Statistic = shapiro_result$statistic,
+  P_value = shapiro_result$p.value
+)
+
+knitr::kable(shapiro_df, caption = "Shapiro-Wilk Test for Normality")
+```
+
+We can see from our Shapiro-Wilk test that since our p-value of `r shapiro_result$p.value` > $\alpha$, where $\alpha$ = 0.05, then we fail to reject the null hypothesis that our model is approximately normal.  
+
+#### Plot and Histogram of Residuals
+```{r, fig.width = 10, fig.height = 4, fig.align = "center"}
+
+par(mfrow = c(1, 2))  
+qqnorm(residuals, main = "QQ Plot of Residuals")
+qqline(residuals, col = "Green")
+hist(residuals, main = "Histogram of Residuals", xlab = "Residuals", col = "lightgreen")
+par(mfrow = c(1, 1))
+```
+
+Also we can see from our graph of residuals, and the histogram of residuals, that although our values are skewed right, our graphs both look approximately normal.
+
+### Homogeneity of Variance
+
+#### Residuals vs Prediction Plot and Treatment Effect by Plane
+```{r, fig.width = 7, fig.height = 4, fig.align = "center"}
+
+prediction <- fitted(Anova)
+plot(residuals, prediction, main = "Residuals vs. Predicted Values Plot", 
+     xlab = "Predicted Values", ylab = "Residuals")
+
+ggplot(data, aes(x = treatment, y = inches, group = as.factor(plane), color = as.factor(plane))) +
+  geom_point() +
+  labs(title = "Treatment Effect on Inches by Plane",
+       x = "Treatment",
+       y = "Inches",
+       color = "Plane")
+```
+
+In both graphs we can see that our variance is approximately homogeneous throughout, in the first graph we see no noticeable signs of well-known patterns, the variance seems constant throughout with no stacking. In the second graph the intervals of points for each treatment isn't widely different depending on the treatment. 
+
+### Independence
+
+Since the same paper airplanes were used four times each to test the treatments, it makes sense that the testing of one treatment would affect the other, as the paper airplanes naturally get damaged, so it's safe to say the tests are not independent, and therefore I will conduct a permutation test as well. 
+
+### Permutation Test
+```{r}
+set.seed(272001)
+
+planes <- unique(data$plane)
+data_perm <- data
+perm_f <- NA
+reps <- 100000
+
+for(i in 1:reps){
+  for(curr_plane in planes){
+    ind <- which(data_perm$plane == curr_plane)
+    data_perm$inches[ind] <- sample(data_perm$inches[ind])
+  }
+  perm_f[i] <- summary(aov(inches ~ treatment, data = data_perm))[[1]][1,4]
+}
+
+original_model <- aov(inches ~ treatment + plane, data = data)
+F_original <- summary(original_model)[[1]][1,4]
+
+perm_p_value <- sum(perm_f >= F_original) / reps
+anova_p_value <- summary(original_model)[[1]][1,5]
+```
+
+```{r}
+output <- cbind(perm_p_value, anova_p_value)
+colnames(output) <- c("Permutation P-Value", "Anova P-Value")
+knitr::kable(output, caption = "Compared ANOVA and Permutation P-Value")
+```
+
+Although a slightly different p-value from our original ANOVA function, the p-value is still small enough to maintain the conclusion that treatment has an affect on the distance the paper-airplane travels. The value we got from the permutation test after 100,000 permutations was `r perm_p_value` and the value given by the ANOVA is `r anova_p_value`. If our true p-value lies somewhere between these two values, we are still better off rejecting the null hypothesis. 
+
+# Discussion 
+
+To effectively compare the gliding performance of the Talon-A aircraft, we chose to use more cost-effective models in the form of paper airplanes, also known as "Basic Darts," due to their similar aerodynamic properties. This approach allowed us to simulate and test various weight distribution strategies without the high cost and complexity associated with working directly with the Talon-A. The primary objective of this experiment was to investigate the impact of different weight distributions on the gliding performance of the aircraft, focusing on the effect of weight placement along the underbelly of the plane. Additionally, we explored the possibility of incorporating a centerfold design to optimize weight balance.
+
+In our experiment, we tested three distinct weight distributions along the underbelly of multiple paper airplanes. Each configuration was tested by launching the planes and recording their flight distances. This allowed us to analyze the effects of weight placement on performance and to identify which configuration produced the most significant change in distance. The data was then subjected to statistical tests to determine whether any observed differences were statistically significant.
+
+Upon analyzing the data, we found that it approximated a normal distribution, as verified by both the Shapiro-Wilk test and visual inspection of normality plots. This normality assumption was crucial for the application of parametric statistical methods, but we also ensured that the homogeneity of variance assumption was met, as indicated by Levene's test. Random sampling was implemented throughout the experiment to ensure that the throws of the airplanes were independent and unbiased. However, one assumption that we identified as potentially problematic was the independence of observations. Given the delicate construction of the paper airplanes, they were susceptible to damage or variations in performance under different conditions, which could have affected the results. Despite this, we decided to proceed with a non-parametric approach in the form of a permutation test, which is less sensitive to violations of the independence assumption.
+
+The permutation test was conducted with 100,000 replications to ensure robust results. Both the ANOVA and permutation tests led to a clear rejection of the null hypothesis, which stated that the different weight distributions had no effect on the flight distance. This rejection of the null hypothesis provided strong evidence that weight distribution does, in fact, influence the performance of the airplanes. Our regression analysis further highlighted the specific impact of weight placement on flight distance. The results indicated that placing weight at the back of the airplane had the most significant effect on increasing the distance flown. This was followed by weight placement at the front, which also showed a noticeable impact. On the other hand, the middle and control weight distributions yielded similar distances, suggesting that these configurations had less influence on the flight performance.
+
+Post-hoc calculations demonstrated that our sample size was sufficient to achieve a statistical power of 80%, meaning that our study was adequately equipped to detect any meaningful differences in the data. This was an important consideration in validating the reliability of our findings and ensuring that the observed effects were not due to random chance.
+
+The results of this experiment provide valuable insights into how weight distribution can affect the performance of the Talon-A aircraft. Specifically, the findings suggest that if the goal is to reduce the distance flown and create a sharper downward pressure, placing more weight at the rear of the aircraft could be an effective strategy. This could potentially help control the trajectory and reduce lift. Conversely, placing more weight at the front of the aircraft may lead to an increase in the distance flown, albeit with a decrease in altitude. This could be beneficial in certain flight scenarios where a longer glide distance is desired. However, it is important to note that the size and overall design of the aircraft play a crucial role in the performance. Increasing the weight, especially at the front, could lead to a trade-off in terms of fuel consumption, as the aircraft would need more energy to lift and maintain its flight. Therefore, any modifications to the weight distribution would need to be carefully considered in the context of the Talon-A’s overall design and operational constraints.
+
+These findings are consistent with previous research, such as that by Barlow (1929), who suggested that the distribution of weight on aircraft significantly impacts their flight dynamics. While our study used paper airplanes as a model for the Talon-A, the principles observed here are likely applicable to more complex aircraft designs. In future work, it would be beneficial to explore additional factors, such as the material properties of the aircraft and aerodynamic features, to gain a more comprehensive understanding of how to optimize the performance of the Talon-A aircraft.
+
+# References
+Barlow, Major TM. "The weight of aircraft: Characteristics and influences affecting aircraft weight, and possible development with increased size." Aircraft Engineering and Aerospace Technology 1.1 (1929): 29-36.
+
+Galkowski, Joseph. Multidisciplinary Analysis of a Reusable, Rocket-Powered Hypersonic Vehicle. MS thesis. Purdue University, 2024.
+
+Schlueter, Joerg U. "Aerodynamic study of the dart paper airplane for micro air vehicle application." Proceedings of the Institution of Mechanical Engineers, Part G: Journal of Aerospace Engineering 228.4 (2014): 567-576.
